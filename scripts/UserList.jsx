@@ -4,7 +4,6 @@ import { Socket } from './Socket';
 
 export function UserList() {
   const [users, setUsers] = useState([]);
-  //const [message, setMessage] = useState("");
   
   function getNewUsers() {
         React.useEffect(() => {

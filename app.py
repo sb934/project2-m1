@@ -46,16 +46,7 @@ class Message(db.Model):
     def __repr__(self):
         return '<Message Text: %s>' % self.text
         
-# class AppUser(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     user = db.Column(db.String(100))
 
-#     def __init__(self, b):
-#         self.user = b
-        
-#     def __repr__(self):
-#         return '<User: %s>' % self.user
-        
 class AuthUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     auth_type = db.Column(db.String(120))
@@ -84,14 +75,6 @@ def emit_all_messages(channel):
         
         all_messages.append(msg_dict)
         
-    # all_messages = [ \
-    #     db_message.text for db_message \
-    #     in db.session.query(Message).all()]
-    
-    # all_senders = [ \
-    #     db_message.user for db_message \
-    #     in db.session.query(Message).all()]
-    
     # gg = [sub[item] for item in range(len(all_messages)) for sub in [all_senders,all_messages]]
         
     socketio.emit(channel, {
