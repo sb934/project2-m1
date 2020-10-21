@@ -2,53 +2,29 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Socket } from './Socket';
 
-let endPoint = "http://0.0.0.0:8080";
-let socket = io.connect(`${endPoint}`);
-
-const App = () => {
-  const [messages, setMessages] = useState(["Hello And Welcome"]);
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    getMessages();
-  }, [messages.length]);
-
-  const getMessages = () => {
-    socket.on("message", msg => {
-      //   let allMessages = messages;
-      //   allMessages.push(msg);
-      //   setMessages(allMessages);
-      setMessages([...messages, msg]);
-    });
-  };
-
-  // On Change
-  const onChange = e => {
-    setMessage(e.target.value);
-  };
-
-  // On Click
-  const onClick = () => {
-    if (message !== "") {
-      socket.emit("message", message);
-      setMessage("");
-    } else {
-      alert("Please Add A Message");
+export function UserList() {
+  const [users, setUsers] = useState([]);
+  //const [message, setMessage] = useState("");
+  
+  function getNewUsers() {
+        React.useEffect(() => {
+            Socket.on('user history', (data) => {
+                console.log("Received users from server: " + data['allUsers']);
+                setUsers(data['allUsers']);
+            });
+        });
     }
-  };
-
+    
+  getNewUsers();
+  
   return (
     <div>
-      {messages.length > 0 &&
-        messages.map(msg => (
-          <div>
-            <p>{msg}</p>
-          </div>
-        ))}
-      <input value={message} name="message" onChange={e => onChange(e)} />
-      <button onClick={() => onClick()}>Send Message</button>
+      <ul>
+          {users.map((user, index) => 
+              <li key={index}>{user}</li>)}
+      </ul>
     </div>
   );
-};
+}
 
-export default App;
+  

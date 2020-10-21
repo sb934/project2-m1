@@ -13,10 +13,6 @@ export function MessageForm() {
     
     // handle event when message sent button clicked 
     function handleSubmit(event) {
-        
-        //let random = Math.floor(Math.random() * 100);
-        //console.log('Generated a random number: ', random);
-        
         // message content --> state var
         Socket.emit('new message', {
             'message': message,
@@ -25,7 +21,6 @@ export function MessageForm() {
         console.log('Sent a message ' + message + ' to server!');
     
         event.preventDefault();
-        
         // setMsg('');
     }
     

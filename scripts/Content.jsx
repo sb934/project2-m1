@@ -1,28 +1,12 @@
 import * as React from 'react';
 import { MessageForm } from './MessageForm';
 import { Socket } from './Socket';
+import { Messages } from './Messages';
+import { UserList } from './UserList';
+import { GoogleButton } from './GoogleButton';
 
 export function Content() {
-    const [messages, setMessages] = React.useState([]);
     // const [message, setMessage] = React.useState(0); //hook -> shifted to MessageForm
-    
-    // DUMMY_DATA for testing
-    /*
-    const DUMMY_DATA = [
-      { sender: "foobar", text: "Hello from this side" },
-      { sender: "adele", text: "Hello from the other side" }
-    ]
-    */
-    function getNewMessages() {
-        React.useEffect(() => {
-            Socket.on('message history', (data) => {
-                console.log("Received addresses from server: " + data['allMessages']);
-                setMessages(data['allMessages']);
-            });
-        });
-    }
-    
-    getNewMessages();
     
     /*
     function newMessage() {
@@ -40,13 +24,10 @@ export function Content() {
             <div class="header">
               <h1>Chat App</h1>
               <p>Project 2 Milestone 2</p>
+              <GoogleButton />
             </div>
-            <div className="scroll">
-                <ul>
-                    {messages.map((message, index) => 
-                        <li key={index} className="box sb5">{message}</li>)}
-                </ul>
-            </div>
+            <UserList />
+            <Messages />
             <MessageForm />
         </div>
     );

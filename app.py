@@ -6,18 +6,20 @@ import os
 import random
 import flask_sqlalchemy
 import requests as r
-        
+
 app = flask.Flask(__name__)
 
 socketio = flask_socketio.SocketIO(app)
 socketio.init_app(app, cors_allowed_origins="*")
 
-user_list = [] # global list of users
+# user_list = [] # global list of users
 counter = 0 # global counter of users
 DEFAULT_USERNAME = 'newUSERxx'
 
 MESSAGES_RECEIVED_CHANNEL = 'message history'
-USERS_RECEIVE_CHANNEL = 'user history'
+USERS_RECEIVED_CHANNEL = 'user history'
+
+AUTH_TYPE_GOOGLE = 'google'
 
 # ---- SQLAlchemy -----
 dotenv_path = join(dirname(__file__), 'sql.env')
@@ -27,9 +29,9 @@ sql_user = os.environ['SQL_USER']
 sql_pwd = os.environ['SQL_PASSWORD']
 #dbuser = os.environ['USER']
 
-database_uri = 'postgresql://{}:{}@localhost/postgres'.format(sql_user, sql_pwd)
+# = 'postgresql://{}:{}@localhost/postgres'.format(sql_user, sql_pwd)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 db.init_app(app)
@@ -38,14 +40,39 @@ db.app = app
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     #user = db.Column(db.String(100))
-    text = db.Column(db.String(250))
+    text = db.Column(db.String(500))
     
     def __init__(self, a):
         self.text = a
         
     def __repr__(self):
         return '<Message Text: %s>' % self.text
+        
+class AppUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(100))
 
+    def __init__(self, b):
+        self.user = b
+        
+    def __repr__(self):
+        return '<User: %s>' % self.user
+        
+class AuthUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    auth_type = db.Column(db.String(120))
+    name = db.Column(db.String(120))
+    email = db.Column(db.String(120))
+    
+    def __init__(self, name, auth_type, email):
+        self.name = name
+        self.auth_type = auth_type
+        self.email = email
+        
+    def __repr__(self):
+        return "<User name: {}\nemail:{}\ntype: {}".format(self.name, self.email, self.auth_type)
+        
+        
 db.create_all()
 #db.session.add(Message("Hello from Joe-Bot"))
 db.session.commit()
@@ -61,11 +88,19 @@ def emit_all_messages(channel):
     })
 # ----- EMIT ALL USERS -----    
 def emit_all_users(channel):
-    all_users = user_list
+    all_users = [ \
+        db_user.user for db_user \
+        in db.session.query(AppUser).all()]
     
     socketio.emit(channel, {
         'allUsers': all_users
     })
+
+# def push_new_user_to_db(name, email):
+#     db.session.add(AuthUser(name, AUTH_TYPE_GOOGLE, email));
+#     db.session.commit();
+        
+#     emit_all_oauth_users(USERS_UPDATED_CHANNEL)
     
 # ----- HELPER FUNCTIONS -----
 import requests as r 
@@ -150,9 +185,15 @@ def on_connect():
     socketio.emit('connected', {
         'test': 'Connected'
     })
-    
+    emit_all_users(USERS_RECEIVED_CHANNEL)
     emit_all_messages(MESSAGES_RECEIVED_CHANNEL)
 
+# on new oAuth
+@socketio.on('new google user')
+def on_new_google_user(data):
+    print("Got an event for new google user input with data:", data)
+    # TODO - Push to DB 
+    
 # whenever new message sent from app
 @socketio.on("new message")
 def on_new_message(data):
@@ -181,8 +222,6 @@ def on_new_message(data):
 @socketio.on("disconnect")
 def on_disconnect():
     print ('Someone disconnected!')
-
-#import models
 
 @app.route('/')
 def hello():

@@ -1,10 +1,10 @@
-
 .header {
-  padding: 20px;
+  padding: 6px;
   text-align: center;
   background: rgba(3, 32, 163, 0.5);
   color: white;
   font-size: 20px;
+  margin-top: -26px;
 }
 
 button:hover {
@@ -18,34 +18,70 @@ button:hover {
   font-size: 12px;
 }
 
-div.scroll { 
-  margin: auto; 
-  padding:4px; 
-  background-color: rgba(3, 32, 163, 0.4); 
-  width: Calc(100vh -  300px); 
-  height: Calc(100vh -  300px); 
-  overflow-x: hidden; 
-  overflow-y: auto; 
-  text-align:justify; 
-}
-            
+div.scroll {
+  margin: auto;
+  padding: 4px;
+  background-color: rgba(3, 32, 163, 0.4);
+  width: Calc(100vh - 300px);
+  height: Calc(100vh - 300px);
+  /* overflow-x: hidden; */
+  /* overflow-y: auto; */
+  border: 1px solid rgba(3, 32, 163, 0.4);
+  text-align: justify;
+} 
+
 button {
   background-color: rgb(143, 163, 252);
   font-size: 12px;
   text-align: center;
   transition-duration: 0.2s;
+  width: 28%;
+  height: 8%;
+  color: white;
+  border-radius: 26px;
+  margin-left: 5px;
+  outline: none;
 }
-
 .box {
   width: 300px;
   margin: 10px auto;
-  border: 2px solid #0063bf;
+  margin-left: -7px;
+  border: 2px solid #ffffff;
   padding: 5px;
   text-align: center;
   font-weight: 500;
   color: #ffffff;
   font-family: arial;
   position: relative;
+}
+
+.sidenav {
+  
+  height: 78%;
+  width: 300px;
+  position: fixed;
+  z-index: 1;
+  top: 137px;
+  left: 8px;
+  background-color: rgba(3, 32, 163, 0.4);
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+li.box.sb5:hover {
+  zoom: 1.02;
 }
 
 .sb5:before {
@@ -75,5 +111,40 @@ button {
 }
 
 div.msgip {
-  margin:auto;
+  /* margin:auto; */
+  padding: 40px;
+}
+
+.input_text{
+  width: 70%;
+  height: 10%;
+  border: 1px solid blue;
+  border-radius: 11px;
+  outline: none;
+}
+
+.Onlinedot {
+  height: 15px;
+  width: 15px;
+  background-color: green;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.Offlinedot {
+  height: 15px;
+  width: 15px;
+  background-color:#77e234;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.Username{
+  color: white;
+  font-size: 24px;
+}
+
+.userlist{
+  margin: 25px;
+
 }
