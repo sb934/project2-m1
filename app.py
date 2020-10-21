@@ -7,6 +7,7 @@ import random
 import flask_sqlalchemy
 import requests as r
 import json
+import re
 
 app = flask.Flask(__name__)
 
@@ -99,6 +100,25 @@ def push_new_user_to_db(name, email):
 # ----- HELPER FUNCTIONS -----
 import requests as r 
 import json
+
+# Check for valid URL
+def is_valid_url(u):   
+    try:
+        response = r.get(u)
+        print("URL is valid and exists on the internet")
+        return True;
+    except:
+        #print("URL does not exist on Internet")
+        return False;
+        
+# Check if URL for Image    
+def is_url_image(image_url):
+   image_formats = ("image/png", "image/jpeg", "image/jpg")
+   res = r.head(image_url)
+   if res.headers["content-type"] in image_formats:
+      print("Image URL received")
+      return True
+   return False
 
 # Funtranslations API - 5 requests per hour only. 
 def funT(q):
@@ -204,6 +224,13 @@ def on_new_message(data):
         
         # Send string to helper function for bot-commands
         bot_will_respond(message.split()[1:])
+    
+    # Check for valid URL
+    url_valid_flag = is_valid_url(message)
+    image_url_flag = False
+    
+    if url_valid_flag:
+        image_url_flag = is_url_image(message)
      
     emit_all_messages(MESSAGES_RECEIVED_CHANNEL)
     
