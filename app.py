@@ -6,6 +6,7 @@ import os
 import random
 import flask_sqlalchemy
 import requests as r
+import json
 
 app = flask.Flask(__name__)
 
@@ -75,15 +76,28 @@ db.session.commit()
 
 # ---- EMIT ALL MESSAGES ----
 def emit_all_messages(channel):
-    all_messages = [ \
-        (db_message.user, db_message.text) for db_message \
-        in db.session.query(Message).all()]
+    all_messages = []
+    for db_message in db.session.query(Message).all():
+        msg_dict = {}
+        msg_dict["sender"] = db_message.user
+        msg_dict["text"] = db_message.text
+        
+        all_messages.append(msg_dict)
+        
+    # all_messages = [ \
+    #     db_message.text for db_message \
+    #     in db.session.query(Message).all()]
     
-    print(all_messages)
+    # all_senders = [ \
+    #     db_message.user for db_message \
+    #     in db.session.query(Message).all()]
+    
+    # gg = [sub[item] for item in range(len(all_messages)) for sub in [all_senders,all_messages]]
         
     socketio.emit(channel, {
         'allMessages': all_messages
     })
+    
 # ----- EMIT ALL USERS -----    
 def emit_all_oauth_users(channel):
     all_users = [ \
