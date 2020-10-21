@@ -37,11 +37,16 @@ export function Content() {
 
     return (
         <div>
-            <h1>My First Chat App!</h1>
-                <ol>
+            <div class="header">
+              <h1>Chat App</h1>
+              <p>Project 2 Milestone 2</p>
+            </div>
+            <div className="scroll">
+                <ul>
                     {messages.map((message, index) => 
                         <li key={index} className="box sb5">{message}</li>)}
-                </ol>
+                </ul>
+            </div>
             <MessageForm />
         </div>
     );

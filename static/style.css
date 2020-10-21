@@ -1,5 +1,14 @@
+
+.header {
+  padding: 20px;
+  text-align: center;
+  background: rgba(3, 32, 163, 0.5);
+  color: white;
+  font-size: 20px;
+}
+
 button:hover {
-  background-color: rgba(3, 32, 163, 0.623); /* Green */
+  background-color: rgba(3, 32, 163, 0.623); 
   border: 2px solid rgb(0, 0, 0);
   color: white;
   padding: 2px 12px;
@@ -9,6 +18,17 @@ button:hover {
   font-size: 12px;
 }
 
+div.scroll { 
+  margin: auto; 
+  padding:4px; 
+  background-color: rgba(3, 32, 163, 0.4); 
+  width: Calc(100vh -  300px); 
+  height: Calc(100vh -  300px); 
+  overflow-x: hidden; 
+  overflow-y: auto; 
+  text-align:justify; 
+}
+            
 button {
   background-color: rgb(143, 163, 252);
   font-size: 12px;
@@ -23,7 +43,7 @@ button {
   padding: 5px;
   text-align: center;
   font-weight: 500;
-  color: #000000;
+  color: #ffffff;
   font-family: arial;
   position: relative;
 }
@@ -52,4 +72,8 @@ button {
   border-bottom: 7px solid transparent;
   left: -11px;
   top: 10px;
+}
+
+div.msgip {
+  margin:auto;
 }

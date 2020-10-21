@@ -30,9 +30,11 @@ export function MessageForm() {
     }
     
     return (
+        <div className="msgip">
         <form onSubmit={handleSubmit}>
             <input onChange={handleChange}/>
             <button>Send</button>
         </form>
+        </div>
     );
 }

@@ -6,7 +6,7 @@ import os
 import random
 import flask_sqlalchemy
 import requests as r
-
+        
 app = flask.Flask(__name__)
 
 socketio = flask_socketio.SocketIO(app)
@@ -17,6 +17,7 @@ counter = 0 # global counter of users
 DEFAULT_USERNAME = 'newUSERxx'
 
 MESSAGES_RECEIVED_CHANNEL = 'message history'
+USERS_RECEIVE_CHANNEL = 'user history'
 
 # ---- SQLAlchemy -----
 dotenv_path = join(dirname(__file__), 'sql.env')
@@ -34,18 +35,36 @@ db = flask_sqlalchemy.SQLAlchemy(app)
 db.init_app(app)
 db.app = app
 
-import models
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    #user = db.Column(db.String(100))
+    text = db.Column(db.String(250))
+    
+    def __init__(self, a):
+        self.text = a
+        
+    def __repr__(self):
+        return '<Message Text: %s>' % self.text
 
 db.create_all()
+#db.session.add(Message("Hello from Joe-Bot"))
 db.session.commit()
 
+# ---- EMIT ALL MESSAGES ----
 def emit_all_messages(channel):
     all_messages = [ \
         db_message.text for db_message \
-        in db.session.query(models.Message).all()]
+        in db.session.query(Message).all()]
         
     socketio.emit(channel, {
         'allMessages': all_messages
+    })
+# ----- EMIT ALL USERS -----    
+def emit_all_users(channel):
+    all_users = user_list
+    
+    socketio.emit(channel, {
+        'allUsers': all_users
     })
     
 # ----- HELPER FUNCTIONS -----
@@ -75,14 +94,14 @@ def bot_will_respond(action):
         response = "It's JoeBot. Not Joe average Bot"
         # print(response)
         # DB TODO
-        db.session.add(models.Message(response))
+        db.session.add(Message(response))
         db.session.commit()
     
     elif action[0].lower() == "help":
         response = "Help will always be given at MyFirstChatApp to those who ask for it... '!! about' to know about me, '!! help' to ask for me help, '!! funtranslate <dialogue>' for surprise translation, '!! kanye' to know what's Kanye West is thinking about, '!! grade' to know your grade in your class..."
         #print(response)
         # DB TODO
-        db.session.add(models.Message(response))
+        db.session.add(Message(response))
         db.session.commit()
     
     elif action[0].lower() == "funtranslate":
@@ -93,14 +112,14 @@ def bot_will_respond(action):
         response = funT(quote)
         #print(response)
         # DB TODO
-        db.session.add(models.Message(response))
+        db.session.add(Message(response))
         db.session.commit()
     
     elif action[0].lower() == "kanye":
         response = kanye_says()
         #print(response)
         # DB TODO
-        db.session.add(models.Message(response))
+        db.session.add(Message(response))
         db.session.commit()
     
     elif action[0].lower() == "grade":
@@ -109,28 +128,29 @@ def bot_will_respond(action):
         response = "Your final grade in NOT-CS490 is " + gr
         #print(response)
         # DB TODO
-        db.session.add(models.Message(response))
+        db.session.add(Message(response))
         db.session.commit()
     
     else:
-        response = "You just told me something that I can't do. That's a first... (cries in the corner)"
+        response = "You just told me something that I can't do. That's not a first... (cries in the corner)"
         print(response)
         # DB TODO
-        db.session.add(models.Message(response))
+        db.session.add(Message(response))
         db.session.commit()
         
-
-
 
 # runs when new instance of app opened
 @socketio.on("connect") 
 def on_connect():
     user_num = counter + 1
     user_name = DEFAULT_USERNAME+str(user_num)
+    user_enter = "Hello {} from Joe-Bot".format(user_name)
+    db.session.add(Message(user_enter))
     
     socketio.emit('connected', {
         'test': 'Connected'
     })
+    
     emit_all_messages(MESSAGES_RECEIVED_CHANNEL)
 
 # whenever new message sent from app
@@ -141,7 +161,7 @@ def on_new_message(data):
     message = data['message']
     
     # Add to DB - TODO
-    db.session.add(models.Message(message))
+    db.session.add(Message(message))
     db.session.commit()
     
     # Check if message for Bot 
@@ -156,7 +176,8 @@ def on_new_message(data):
     # socketio.emit('message received', {
     #     'message': message
     # })
-    
+
+# when a user closes the app     
 @socketio.on("disconnect")
 def on_disconnect():
     print ('Someone disconnected!')
