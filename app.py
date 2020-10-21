@@ -12,10 +12,6 @@ app = flask.Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 socketio.init_app(app, cors_allowed_origins="*")
 
-# user_list = [] # global list of users
-counter = 0 # global counter of users
-DEFAULT_USERNAME = 'newUSERxx'
-
 MESSAGES_RECEIVED_CHANNEL = 'message history'
 USERS_RECEIVED_CHANNEL = 'user history'
 
@@ -39,24 +35,25 @@ db.app = app
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    #user = db.Column(db.String(100))
-    text = db.Column(db.String(500))
+    user = db.Column(db.String(100))
+    text = db.Column(db.String(1000))
     
-    def __init__(self, a):
+    def __init__(self, user, a):
+        self.user = user
         self.text = a
         
     def __repr__(self):
         return '<Message Text: %s>' % self.text
         
-class AppUser(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.String(100))
+# class AppUser(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user = db.Column(db.String(100))
 
-    def __init__(self, b):
-        self.user = b
+#     def __init__(self, b):
+#         self.user = b
         
-    def __repr__(self):
-        return '<User: %s>' % self.user
+#     def __repr__(self):
+#         return '<User: %s>' % self.user
         
 class AuthUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -74,34 +71,34 @@ class AuthUser(db.Model):
         
         
 db.create_all()
-#db.session.add(Message("Hello from Joe-Bot"))
 db.session.commit()
 
 # ---- EMIT ALL MESSAGES ----
 def emit_all_messages(channel):
     all_messages = [ \
-        db_message.text for db_message \
+        (db_message.user, db_message.text) for db_message \
         in db.session.query(Message).all()]
+    
+    print(all_messages)
         
     socketio.emit(channel, {
         'allMessages': all_messages
     })
 # ----- EMIT ALL USERS -----    
-def emit_all_users(channel):
+def emit_all_oauth_users(channel):
     all_users = [ \
-        db_user.user for db_user \
-        in db.session.query(AppUser).all()]
+        db_user.name for db_user \
+        in db.session.query(AuthUser).all()]
     
     socketio.emit(channel, {
         'allUsers': all_users
     })
 
-# def push_new_user_to_db(name, email):
-#     db.session.add(AuthUser(name, AUTH_TYPE_GOOGLE, email));
-#     db.session.commit();
+def push_new_user_to_db(name, email):
+    db.session.add(AuthUser(name, AUTH_TYPE_GOOGLE, email));
+    db.session.commit();
         
-#     emit_all_oauth_users(USERS_UPDATED_CHANNEL)
-    
+    emit_all_oauth_users(USERS_RECEIVED_CHANNEL)
 # ----- HELPER FUNCTIONS -----
 import requests as r 
 import json
@@ -129,14 +126,14 @@ def bot_will_respond(action):
         response = "It's JoeBot. Not Joe average Bot"
         # print(response)
         # DB TODO
-        db.session.add(Message(response))
+        db.session.add(Message('joe-bot',response))
         db.session.commit()
     
     elif action[0].lower() == "help":
         response = "Help will always be given at MyFirstChatApp to those who ask for it... '!! about' to know about me, '!! help' to ask for me help, '!! funtranslate <dialogue>' for surprise translation, '!! kanye' to know what's Kanye West is thinking about, '!! grade' to know your grade in your class..."
         #print(response)
         # DB TODO
-        db.session.add(Message(response))
+        db.session.add(Message('joe-bot',response))
         db.session.commit()
     
     elif action[0].lower() == "funtranslate":
@@ -147,14 +144,14 @@ def bot_will_respond(action):
         response = funT(quote)
         #print(response)
         # DB TODO
-        db.session.add(Message(response))
+        db.session.add(Message('joe-bot',response))
         db.session.commit()
     
     elif action[0].lower() == "kanye":
         response = kanye_says()
         #print(response)
         # DB TODO
-        db.session.add(Message(response))
+        db.session.add(Message('joe-bot',response))
         db.session.commit()
     
     elif action[0].lower() == "grade":
@@ -163,46 +160,45 @@ def bot_will_respond(action):
         response = "Your final grade in NOT-CS490 is " + gr
         #print(response)
         # DB TODO
-        db.session.add(Message(response))
+        db.session.add(Message('joe-bot',response))
         db.session.commit()
     
     else:
         response = "You just told me something that I can't do. That's not a first... (cries in the corner)"
         print(response)
         # DB TODO
-        db.session.add(Message(response))
+        db.session.add(Message('joe-bot',response))
         db.session.commit()
         
 
 # runs when new instance of app opened
 @socketio.on("connect") 
 def on_connect():
-    user_num = counter + 1
-    user_name = DEFAULT_USERNAME+str(user_num)
-    user_enter = "Hello {} from Joe-Bot".format(user_name)
-    db.session.add(Message(user_enter))
-    
+    print("someone connnected")
     socketio.emit('connected', {
         'test': 'Connected'
     })
-    emit_all_users(USERS_RECEIVED_CHANNEL)
+    
+    emit_all_oauth_users(USERS_RECEIVED_CHANNEL)
     emit_all_messages(MESSAGES_RECEIVED_CHANNEL)
 
 # on new oAuth
 @socketio.on('new google user')
 def on_new_google_user(data):
     print("Got an event for new google user input with data:", data)
-    # TODO - Push to DB 
+    # TODO - Push to DB
+    push_new_user_to_db(data['name'], data['email'])
+    print("Added new user to AuthUser DB!")
     
 # whenever new message sent from app
 @socketio.on("new message")
 def on_new_message(data):
     print("Got an event for new message with data:", data)
-    
+    username = data['username']
     message = data['message']
     
     # Add to DB - TODO
-    db.session.add(Message(message))
+    db.session.add(Message(username, message))
     db.session.commit()
     
     # Check if message for Bot 

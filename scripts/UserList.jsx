@@ -19,10 +19,13 @@ export function UserList() {
   
   return (
     <div>
-      <ul>
           {users.map((user, index) => 
-              <li key={index}>{user}</li>)}
-      </ul>
+              <div className="userlist">
+                <span className="Onlinedot" />
+                <span className="Username" key={index}>{user}</span>
+              </div> 
+              //<li key={index}>{user}</li>
+              )}
     </div>
   );
 }

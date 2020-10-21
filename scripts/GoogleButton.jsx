@@ -14,6 +14,7 @@ function handleSubmit(response) {
     });
     window.sessionStorage.setItem("username",name);
     console.log('Sent the name ' + name + ' to server!');
+    window.location.reload()
 }
 
 function handleFailure(response) {

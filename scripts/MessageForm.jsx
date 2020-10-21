@@ -14,22 +14,35 @@ export function MessageForm() {
     // handle event when message sent button clicked 
     function handleSubmit(event) {
         // message content --> state var
+        let username = window.sessionStorage.getItem("username");
+        
         Socket.emit('new message', {
+            'username':username,
             'message': message,
         }); 
         
-        console.log('Sent a message ' + message + ' to server!');
+        console.log('Sent a message ' + message + ' from ' + username + ' to server!');
     
         event.preventDefault();
         // setMsg('');
     }
     
+    React.useEffect(() => { //hook oncomponentmount
+            if (window.sessionStorage.getItem("username") !== null) {
+                document.getElementById("sendbutton").style.display="block"
+        }});
+    
     return (
         <div className="msgip">
-        <form onSubmit={handleSubmit}>
-            <input onChange={handleChange}/>
-            <button>Send</button>
-        </form>
+            <form onSubmit={handleSubmit}><input type="text" placeholder="message" className="input_text" onChange={handleChange}/><button id="sendbutton" style={{'display': 'none'}}>Send</button></form>
         </div>
+        // <div className="msgip">
+        // <form onSubmit={handleSubmit}>
+        //     <input onChange={handleChange}/>
+        //     <button id="sendbutton" style={{'display': 'none'}}>Send</button>
+        // </form>
+        // </div>
     );
 }
+
+       
