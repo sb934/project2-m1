@@ -24,8 +24,8 @@ div.scroll {
   background-color: rgba(3, 32, 163, 0.4);
   width: Calc(100vh - 300px);
   height: Calc(100vh - 300px);
-  /* overflow-x: hidden; */
-  /* overflow-y: auto; */
+  overflow-x: hidden; 
+  overflow-y: auto; 
   border: 1px solid rgba(3, 32, 163, 0.4);
   text-align: justify;
 } 
@@ -111,7 +111,7 @@ li.box.sb5:hover {
 }
 
 div.msgip {
-  /* margin:auto; */
+  margin:auto; 
   padding: 40px;
 }
 
